@@ -8,7 +8,25 @@ const bookingRoutes = require("./routes/booking.routes");
 const app = express();
 
 // Cho phép frontend ở localhost:5173 truy cập
-app.use(cors({ origin: "http://localhost:5173" }));
+// app.use(cors({ origin: "http://localhost:5173" }));
+const allowedOrigins = [
+    'http://localhost:5173',
+    'https://duong123321.netlify.app'
+];
+
+app.use(cors({
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true
+}));
+
+// Xử lý preflight request (OPTIONS)
+app.options('*', cors());
 
 // Phân tích JSON body
 app.use(express.json());
