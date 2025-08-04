@@ -6,25 +6,19 @@ const bookingRoutes = require("./routes/booking.routes");
 
 const app = express();
 
-// Cấu hình CORS cho frontend Netlify và localhost
-const corsOptions = {
-  origin: [
-    'http://localhost:5173',
-    'https://duong123321.netlify.app'
-  ],
-  credentials: true,
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  allowedHeaders: ['Content-Type', 'Authorization'],
-};
+// ✅ Cho phép tất cả các miền truy cập (CORS mở toàn bộ)
+app.use(cors({
+  origin: true,          // Cho phép mọi domain
+  credentials: true      // Cho phép gửi cookie, auth headers,...
+}));
 
-// Apply CORS globally
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // OPTIONS cho preflight request
+// ✅ Xử lý preflight requests (OPTIONS)
+app.options("*", cors());
 
-// Body parser
+// ✅ Middleware để parse JSON body
 app.use(express.json());
 
-// Routes
+// ✅ Các route
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/bookings", bookingRoutes);
