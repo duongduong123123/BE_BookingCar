@@ -6,9 +6,15 @@ const authRoutes = require("./routes/auth.routes");
 const bookingRoutes = require("./routes/booking.routes");
 
 const app = express();
+const corsOptions = {
+  origin: "https://duong123321.netlify.app", // hoặc dùng mảng nếu cần nhiều domain
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+};
 
-// Cho phép frontend ở localhost:5173 truy cập
-app.use(cors({ origin: "https://duong123321.netlify.app" }));
+app.use(cors(corsOptions));
+
 
 // Phân tích JSON body
 app.use(express.json());
