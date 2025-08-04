@@ -6,33 +6,36 @@ const bookingRoutes = require("./routes/booking.routes");
 
 const app = express();
 
-// ✅ Cấu hình CORS cụ thể cho frontend ở localhost và Netlify
+// ✅ Danh sách các origin được phép
 const allowedOrigins = [
-    "http://localhost:5173",
-    "https://duong123321.netlify.app"
+  "http://localhost:5173",
+  "https://duong123321.netlify.app"
 ];
 
-app.use(cors({
-    origin: function (origin, callback) {
-        // Cho phép các origin đã khai báo hoặc không có origin (Postman, mobile app,...)
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error("Not allowed by CORS"));
-        }
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"]
-}));
+// ✅ Cấu hình CORS dùng lại cho mọi nơi
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+};
 
-// ✅ Xử lý preflight requests (OPTIONS)
-app.options("*", cors());
+// ✅ Dùng cho toàn bộ app
+app.use(cors(corsOptions));
 
-// ✅ Middleware parse JSON body
+// ✅ Xử lý preflight (OPTIONS) với đúng corsOptions
+app.options("*", cors(corsOptions));
+
+// ✅ Parse body
 app.use(express.json());
 
-// ✅ Các route
+// ✅ Các routes
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/bookings", bookingRoutes);
