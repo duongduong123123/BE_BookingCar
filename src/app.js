@@ -1,29 +1,31 @@
-// app.js
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
+const fs = require("fs");
+
 const userRoutes = require("./routes/user.routes");
 const authRoutes = require("./routes/auth.routes");
 const bookingRoutes = require("./routes/booking.routes");
 
 const app = express();
 
-// Cho phép cấu hình origin động qua biến môi trường khi deploy
-const allowedOrigins = process.env.ALLOWED_ORIGINS
-  ? process.env.ALLOWED_ORIGINS.split(",")
-  : [
-    "https://duong123321.netlify.app",
-    "https://fe-booking-car.vercel.app",
-    "https://fe-booking-car.vercel.app/",
-    "https://be-bookingcar.onrender.com",
-    "http://localhost:5173"
-  ];
+// ==========================
+// ✅ CORS CONFIGURATION
+// ==========================
+const allowedOrigins = [
+  "https://fe-booking-car.vercel.app",
+  "https://be-bookingcar.onrender.com",
+  "http://localhost:5173"
+];
+
 const corsOptions = {
   origin: function (origin, callback) {
-    // Cho phép request không có origin (như từ Postman)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) !== -1) {
+    console.log("🔍 Request Origin:", origin);
+    if (!origin) return callback(null, true); // Cho phép Postman, curl, server-side
+    if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
+      console.warn("❌ Blocked by CORS:", origin);
       callback(new Error("Not allowed by CORS"));
     }
   },
@@ -31,25 +33,39 @@ const corsOptions = {
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"]
 };
+
 app.use(cors(corsOptions));
 
+// Xử lý preflight request cho mọi route
+app.options("*", cors(corsOptions));
 
-// Phân tích JSON body
+// ==========================
+// ✅ BODY PARSER
+// ==========================
 app.use(express.json());
 
+// ==========================
+// ✅ TEST ROOT ROUTE
+// ==========================
+app.get("/", (req, res) => {
+  res.json({ message: "API server is running!" });
+});
 
-// Các route API
+// ==========================
+// ✅ ROUTES
+// ==========================
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/bookings", bookingRoutes);
 
-// Phục vụ file tĩnh (frontend build) nếu deploy chung FE + BE
-const path = require("path");
+// ==========================
+// ✅ STATIC BUILD (FE)
+// ==========================
 if (process.env.NODE_ENV === "production") {
   const buildPath = path.join(__dirname, "../../FE_BookingCar/dist");
   app.use(express.static(buildPath));
-  // fallback cho SPA, chỉ khi không phải API và file index.html tồn tại
-  const fs = require("fs");
+
+  // SPA fallback
   app.get("*", (req, res, next) => {
     if (req.originalUrl.startsWith("/api/")) return next();
     const indexPath = path.join(buildPath, "index.html");
@@ -61,8 +77,9 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-
-// Xử lý route không tồn tại (404) cho API
+// ==========================
+// ✅ 404 HANDLER FOR API
+// ==========================
 app.use((req, res, next) => {
   if (req.originalUrl.startsWith("/api/")) {
     return res.status(404).json({
@@ -73,9 +90,11 @@ app.use((req, res, next) => {
   next();
 });
 
-// Middleware xử lý lỗi chung
+// ==========================
+// ✅ GLOBAL ERROR HANDLER
+// ==========================
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error("🔥 Error:", err.stack);
   res.status(500).json({
     error: "Internal Server Error",
     message: err.message || "Something went wrong!"
