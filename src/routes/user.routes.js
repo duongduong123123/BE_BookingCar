@@ -1,4 +1,4 @@
-// routes/admin.routes.js
+// routes/user.routes.js
 const express = require("express");
 const router = express.Router();
 const { createAdmin } = require("../controllers/user.controller");
