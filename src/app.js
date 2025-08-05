@@ -12,7 +12,10 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(",")
   : [
     "https://duong123321.netlify.app",
-    "https://fe-booking-car.vercel.app"
+    "https://fe-booking-car.vercel.app",
+    "https://fe-booking-car.vercel.app/",
+    "https://be-bookingcar.onrender.com",
+    "http://localhost:5173"
   ];
 const corsOptions = {
   origin: function (origin, callback) {
