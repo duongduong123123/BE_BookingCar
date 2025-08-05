@@ -65,14 +65,14 @@ if (process.env.NODE_ENV === "production") {
   const buildPath = path.join(__dirname, "../../FE_BookingCar/dist");
   app.use(express.static(buildPath));
 
-  // SPA fallback
-  app.get("*", (req, res, next) => {
-    if (req.originalUrl.startsWith("/api/")) return next();
-    const indexPath = path.join(buildPath, "index.html");
+  // SPA fallback cho Express 5.x
+  app.get('/:any*', (req, res, next) => {
+    if (req.originalUrl.startsWith('/api/')) return next();
+    const indexPath = path.join(buildPath, 'index.html');
     if (fs.existsSync(indexPath)) {
       res.sendFile(indexPath);
     } else {
-      res.status(404).send("Frontend build not found. Please build FE_BookingCar/dist.");
+      res.status(404).send('Frontend build not found. Please build FE_BookingCar/dist.');
     }
   });
 }
