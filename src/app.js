@@ -10,6 +10,7 @@ const app = express();
 
 // Danh sách origin được phép
 const allowedOrigins = [
+  "http://localhost:5173",
   "https://duong123321.netlify.app",
   "https://fe-booking-car.vercel.app"
 ];
